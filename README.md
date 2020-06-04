@@ -1,0 +1,2 @@
+# ViewCreate
+这是一个可以在编译时期对xml解析创建view对象，解决了xml反射生成view对象的效率问题
