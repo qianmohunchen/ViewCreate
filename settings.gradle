@@ -1,0 +1,5 @@
+rootProject.name='LayoutXml'
+include ':app'
+include ':ViewOptProcessor'
+include ':ViewOptAnnotation'
+include ':viewoptapi'
