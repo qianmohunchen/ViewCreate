@@ -1,11 +1,12 @@
 apply plugin: 'java-library'
+apply from: '/upload/maven_upload.gradle'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.google.auto.service:auto-service:1.0-rc2'
     implementation 'com.squareup:javapoet:1.8.0'
     annotationProcessor 'com.google.auto.service:auto-service:1.0-rc2'
-    implementation project(':ViewOptAnnotation')
+    api "cn.zdq.support:viewcreateannotation:1.0.0"
 
 }
 tasks.withType(JavaCompile) {

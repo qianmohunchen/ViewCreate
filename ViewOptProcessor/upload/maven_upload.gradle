@@ -1,0 +1,94 @@
+apply plugin: 'maven'
+
+//读取配置文件maven_settings.properties
+Properties setting_properties = new Properties()
+File file = project.file('upload/maven_settings.properties')
+setting_properties.load(file.newDataInputStream())
+
+def pom_version_release = setting_properties.getProperty("POM_VERSION_RELEASE")
+def releaseRepoUrl = setting_properties.getProperty("repository.url.release")
+def userName = setting_properties.getProperty("repository.user")
+def userPassword = setting_properties.getProperty("repository.password")
+def pom_name = setting_properties.getProperty("POM_NAME")
+def pom_description = setting_properties.getProperty("POM_DESCRIPTION")
+def pom_group = setting_properties.getProperty("POM_GROUP")
+def pom_artifact_id = setting_properties.getProperty("POM_ARTIFACT_ID")
+def pom_packaging = setting_properties.getProperty("POM_PACKAGING")
+def pom_need_sources_jar = setting_properties.getProperty("POM_NEED_SOURCES_JAR")
+def pom_need_java_docs = setting_properties.getProperty("POM_NEED_JAVA_DOCS")
+
+def repoUrl
+def pom_version
+
+uploadArchives {
+    repoUrl = releaseRepoUrl
+    pom_version = pom_version_release
+//    println "project = " + project.getPath()
+//    println "pom_version = " + pom_version
+//    println "pom_need_sources_jar = " + pom_need_sources_jar
+//    println "pom_need_java_docs = " + pom_need_java_docs
+//    println "repoUrl = " + repoUrl + "\n"
+
+    repositories.mavenDeployer {
+        repository(url: repoUrl) {
+            authentication(userName: userName, password: userPassword)
+        }
+
+        pom.project {
+            name pom_name
+            description pom_description
+            url repoUrl
+            groupId pom_group
+            artifactId pom_artifact_id
+            version pom_version
+            packaging pom_packaging
+        }
+    }
+}
+
+task cleanDir(type: Delete) {
+    delete buildDir
+}
+
+if (project.hasProperty("android")) { // Android libraries
+    task androidJavadocs(type: Javadoc) {
+        // 设置源码所在的位置
+        source = android.sourceSets.main.java.sourceFiles
+    }
+
+    // 生成javadoc.jar
+    task javadocJar(type: Jar) {
+        // 指定文档名称
+        classifier = 'javadoc'
+        from androidJavadocs.destinationDir
+    }
+
+    // 生成sources.jar
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.sourceFiles
+//        from android.sourceSets.main.resources
+    }
+
+} else {// Java libraries
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+}
+
+
+//artifacts {
+//    if ("true".equalsIgnoreCase(pom_need_sources_jar)) {
+//        archives sourcesJar
+//    }
+//    if ("true".equalsIgnoreCase(pom_need_java_docs)) {
+//        archives javadocJar
+//    }
+//}
+uploadArchives.mustRunAfter 'cleanDir'

@@ -1,4 +1,5 @@
 apply plugin: 'java-library'
+apply from: '/upload/maven_upload.gradle'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
